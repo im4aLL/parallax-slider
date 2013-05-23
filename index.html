@@ -1,0 +1,150 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Sliding slider</title>
+
+<style>
+	* { margin:0; padding:0 }
+	body { font-family:Helvetica, Arial, sans-serif; }
+	
+	.slider-container { margin:100px auto auto auto; width:300px; height:500px; overflow:hidden; }
+	.slider-container ul { list-style:none }
+	.slider-container ul li { width:300px; height:500px; float:left; position:relative; background-position:-100px 0px }
+	.slider-container ul li .content { font-size:50px; color:rgba(255,255,255,.5); position:absolute; bottom:20px; left:20px; }
+	.slider-container .viewport { /*width:300%;*/ width:900px; }
+	
+	.slider-container ul li:before {
+	  content: "";
+	  position: absolute;
+	  bottom: 0;
+	  left: 0;
+	  width: 100%;
+	  height: 40%;
+	  background: linear-gradient(transparent, black);
+	}
+	
+	#slider1 { background-image: url(http://farm8.staticflickr.com/7347/8731666710_34d07e709e_z.jpg); }
+	#slider2 { background-image: url(http://farm8.staticflickr.com/7384/8730654121_05bca33388_z.jpg); }
+	#slider3 { background-image: url(http://farm8.staticflickr.com/7382/8732044638_9337082fc6_z.jpg); }
+	
+	.slider-control, .slider-control-extend { text-align:center; list-style:none; margin-top:20px; }
+	.slider-control li, .slider-control-extend li { display:inline-block; }
+	.slider-control li.active a { text-decoration:none }
+</style>
+
+</head>
+
+<body>
+
+	<div class="slider-container">
+    	<div class="viewport">
+        	<ul>
+            	<li id="slider1"><span class="content">78<sup>o</sup></span></li>
+                <li id="slider2"><span class="content">25<sup>o</sup></span></li>
+                <li id="slider3"><span class="content">18<sup>o</sup></span></li>
+            </ul>
+        </div>
+    </div>
+    
+    <ul class="slider-control">
+    	<li class="active"><a href="#slider-0">1</a></li>
+        <li><a href="#slider-1">2</a></li>
+        <li><a href="#slider-2">3</a></li>
+    </ul>
+    
+    <ul class="slider-control-extend">
+    	<li><a href="javascript:void(0)" id="prev">&lt;</a></li>
+    	<li><a href="javascript:void(0)" id="next">&gt;</a></li>
+    </ul>
+    
+    <div class="aa"></div>
+
+	<script src="jquery.js"></script>
+    <script>
+		$(document).ready(function(){
+
+			var slider = {
+			  
+			  el: {
+				slider: $(".slider-container"),
+				allSlides: $(".slider-container ul li"),
+				sliderNav: $(".slider-control"),
+    			allNavButtons: $(".slider-control > li > a"),
+				npButton: $(".slider-control-extend")
+			  },
+			  
+			  timing: 800,
+  			  slideWidth: 300, // could measure this
+			  
+			  init: function() {
+				// manual scrolling
+				this.el.slider.on("scroll", function(event) {
+				  slider.moveSlidePosition(event);
+				});
+				
+				// ... or click a thing
+				this.el.sliderNav.on("click", "a", function(event) {
+				  slider.handleNavClick(event, this);
+				});
+				
+				// next prev button
+				this.el.npButton.on("click", "a", function(event){
+					slider.npButtonClick(event, this);	
+				});
+			  },
+			  
+			  moveSlidePosition: function(event) {
+				// Magic Numbers
+				this.el.allSlides.css({
+				  "background-position": $(event.target).scrollLeft()/6 -100 + "px 0"
+				});  
+			  },
+			  
+			  handleNavClick: function(event, el) {
+				// Don't change URL to a hash, remove if you want that
+				event.preventDefault();
+			
+				// Get "1" from "#slide-1", for example
+				var position = $(el).attr("href").split("-").pop();
+				
+				this.el.slider.animate({
+				  scrollLeft: position * this.slideWidth
+				}, this.timing);
+				
+				this.changeActiveNav(el);
+			  },
+			  
+			  changeActiveNav: function(el) {
+				// Remove active from all links
+				this.el.allNavButtons.parent().removeClass("active");
+				// Add back to the one that was pressed
+				$(el).parent().addClass("active");
+			  },
+			  
+			  npButtonClick: function(event, el) {
+				// Don't change URL to a hash, remove if you want that
+				event.preventDefault();
+			
+				var eventName = $(el).attr('id');
+				
+				switch(eventName){
+					case 'next':
+					this.el.sliderNav.find('li.active').next().children('a').trigger("click");
+					break;
+					
+					case 'prev':
+					this.el.sliderNav.find('li.active').prev().children('a').trigger("click");
+					break;	
+				}
+				
+			  },
+			  
+			};
+			
+			slider.init();
+
+		});
+	</script>
+</body>
+</html>
